@@ -34,9 +34,12 @@ Sign-Language-Recognizer/
 │
 ├── asl.ipynb               # Model training notebook
 ├── predict_final.py        # Prediction logic (loads trained model)
+├── predict.py              # Prediction pipeline
 ├── translator.py           # Webcam translator + Text-to-Speech
 ├── variables.py            # Labels + model path
 ├── requirements.txt        # Python dependencies
+├── images/
+│     └── alphabet.png      # ASL reference image
 ├── model/
 │     └── model.h5          # (Add later) Trained CNN model file
 └── README.md               # Project documentation
@@ -57,23 +60,88 @@ cd Sign-Language-Recognizer
 pip install -r requirements.txt
 ```
 
-### 3️⃣ Add the trained model
-Place your trained model file inside:
-
+### For Apple Silicon (M1/M2/M3), install:
 ```
-model/model.h5
-```
-
-If you don’t have the model yet, open and run the `asl.ipynb` notebook:
-
-```
-model.save("model/model.h5")
+pip install tensorflow-macos
+pip install tensorflow-metal
 ```
 
-### 4️⃣ Run the ASL Translator
+---
+
+# 📚 Dataset
+
+The project uses the **ASL Alphabet dataset** containing:
+
+- 26 classes (A to Z)  
+- ~700 images per class  
+- ~18,200 total images  
+- RGB images resized to **64×64×3** for training  
+
+Dataset link:  
+https://www.kaggle.com/datasets/ayuraj/asl-dataset
+
+---
+
+# 🧠 Training the Model
+
+Training is performed in the notebook:
+
+```
+asl.ipynb
+```
+
+The final trained model is saved as:
+
+```
+model.keras
+model.h5
+```
+
+### After training, update `variables.py`:
+
+```
+MODEL_PATH = "model.keras"
+THRESHOLD = 75
+IMAGE_SIZE = 64
+LABELS = ['A','B','C', ..., 'Z']
+```
+
+---
+
+# 🔍 Prediction Pipeline
+
+`predict.py` handles:
+
+- Image preprocessing (resize → RGB → normalization)  
+- Preparing image for CNN input  
+- Running the model to get class probabilities  
+- Returning predicted label and confidence  
+
+### Usage example:
+```python
+from predict import which
+confidence, letter = which(image)
+```
+
+---
+
+# 🎥 Real-Time Translator
+
+Run the translator:
+
 ```
 python translator.py
 ```
+
+### Features:
+
+- Live webcam feed  
+- Mirrored camera view  
+- Large Region of Interest (ROI)  
+- Skin-mask-based background removal  
+- Display of predicted letter and confidence  
+- Sentence assembly and display bar  
+- Integrated offline text-to-speech (pyttsx3)
 
 ---
 
